@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store
+# 6 MB of public M4 CSVs, refetched by `make data`.
+data/*.csv

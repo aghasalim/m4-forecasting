@@ -1,0 +1,182 @@
+{
+  "Hourly": [
+    {
+      "method": "seasonal_naive",
+      "interval": "analytic",
+      "sMAPE": 13.9123,
+      "MASE": 1.1932,
+      "OWA": 0.8428,
+      "coverage95": 0.8523,
+      "width": 6.0572,
+      "MSIS": 11.057,
+      "n": 414
+    },
+    {
+      "method": "naive2",
+      "interval": "analytic",
+      "sMAPE": 17.3607,
+      "MASE": 2.2717,
+      "OWA": 1.0,
+      "coverage95": 0.9018,
+      "width": 23.5178,
+      "MSIS": 33.1853,
+      "n": 414
+    },
+    {
+      "method": "theta",
+      "interval": "analytic",
+      "sMAPE": 15.4067,
+      "MASE": 2.1082,
+      "OWA": 1.0127,
+      "coverage95": 0.9134,
+      "width": 23.5178,
+      "MSIS": 33.3022,
+      "n": 414
+    },
+    {
+      "method": "naive",
+      "interval": "analytic",
+      "sMAPE": 43.003,
+      "MASE": 11.6077,
+      "OWA": 5.1183,
+      "coverage95": 0.9385,
+      "width": 65.4837,
+      "MSIS": 71.2445,
+      "n": 414
+    },
+    {
+      "method": "seasonal_naive",
+      "interval": "empirical",
+      "sMAPE": 13.9123,
+      "MASE": 1.1932,
+      "OWA": 0.8428,
+      "coverage95": 0.866,
+      "width": 4.3072,
+      "MSIS": 8.8226,
+      "n": 414
+    },
+    {
+      "method": "naive2",
+      "interval": "empirical",
+      "sMAPE": 17.3607,
+      "MASE": 2.2717,
+      "OWA": 1.0,
+      "coverage95": 0.7913,
+      "width": 5.7285,
+      "MSIS": 14.9461,
+      "n": 414
+    },
+    {
+      "method": "theta",
+      "interval": "empirical",
+      "sMAPE": 15.4067,
+      "MASE": 2.1082,
+      "OWA": 1.0127,
+      "coverage95": 0.7992,
+      "width": 5.135,
+      "MSIS": 12.1797,
+      "n": 414
+    },
+    {
+      "method": "naive",
+      "interval": "empirical",
+      "sMAPE": 43.003,
+      "MASE": 11.6077,
+      "OWA": 5.1183,
+      "coverage95": 0.8282,
+      "width": 4.8654,
+      "MSIS": 12.1037,
+      "n": 414
+    }
+  ],
+  "Weekly": [
+    {
+      "method": "naive",
+      "interval": "analytic",
+      "sMAPE": 9.1613,
+      "MASE": 2.7773,
+      "OWA": 1.0,
+      "coverage95": 0.9494,
+      "width": 16.9521,
+      "MSIS": 26.4246,
+      "n": 359
+    },
+    {
+      "method": "naive2",
+      "interval": "analytic",
+      "sMAPE": 9.1613,
+      "MASE": 2.7773,
+      "OWA": 1.0,
+      "coverage95": 0.9494,
+      "width": 16.9521,
+      "MSIS": 26.4246,
+      "n": 359
+    },
+    {
+      "method": "seasonal_naive",
+      "interval": "analytic",
+      "sMAPE": 9.1613,
+      "MASE": 2.7773,
+      "OWA": 1.0,
+      "coverage95": 0.9494,
+      "width": 16.9521,
+      "MSIS": 26.4246,
+      "n": 359
+    },
+    {
+      "method": "theta",
+      "interval": "analytic",
+      "sMAPE": 10.6666,
+      "MASE": 3.3097,
+      "OWA": 1.2882,
+      "coverage95": 0.9158,
+      "width": 16.9521,
+      "MSIS": 35.1422,
+      "n": 359
+    },
+    {
+      "method": "naive",
+      "interval": "empirical",
+      "sMAPE": 9.1613,
+      "MASE": 2.7773,
+      "OWA": 1.0,
+      "coverage95": 0.9055,
+      "width": 12.2227,
+      "MSIS": 18.2094,
+      "n": 359
+    },
+    {
+      "method": "naive2",
+      "interval": "empirical",
+      "sMAPE": 9.1613,
+      "MASE": 2.7773,
+      "OWA": 1.0,
+      "coverage95": 0.9055,
+      "width": 12.2227,
+      "MSIS": 18.2094,
+      "n": 359
+    },
+    {
+      "method": "seasonal_naive",
+      "interval": "empirical",
+      "sMAPE": 9.1613,
+      "MASE": 2.7773,
+      "OWA": 1.0,
+      "coverage95": 0.9055,
+      "width": 12.2227,
+      "MSIS": 18.2094,
+      "n": 359
+    },
+    {
+      "method": "theta",
+      "interval": "empirical",
+      "sMAPE": 10.6666,
+      "MASE": 3.3097,
+      "OWA": 1.2882,
+      "coverage95": 0.8959,
+      "width": 13.9282,
+      "MSIS": 21.3021,
+      "n": 359
+    }
+  ]
+}
