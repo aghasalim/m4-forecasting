@@ -5,3 +5,5 @@ __pycache__/
 .DS_Store
 # 6 MB of public M4 CSVs, refetched by `make data`.
 data/*.csv
+.env
+.env.local
