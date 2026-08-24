@@ -16,7 +16,35 @@ the time is not slightly imperfect, it is wrong, and no sMAPE will ever say so.
 
 ---
 
-## Three results
+
+---
+
+## Abstract
+
+M4 is scored on point accuracy, and the prediction interval is usually an
+afterthought. This work reverses that emphasis: the same four baseline methods are
+run on the Hourly and Weekly subsets under two interval constructions, and the
+question is whether a nominal 95% interval contains the truth 95% of the time.
+
+Mostly it does not. Weekly analytic intervals land on 94.9%, essentially nominal.
+Everything on Hourly under-covers, worst case 79.1% against a nominal 95% — a
+16-point shortfall on an interval a user would take at face value. Empirical
+intervals under-cover on Weekly too, but buy their coverage far more cheaply:
+analytic intervals on Hourly are up to five times wider and still cover less.
+
+Point accuracy and interval quality also do not rank the methods the same way.
+OWA and MSIS disagree, so a method chosen on the competition metric carries no
+guarantee about the intervals it produces.
+
+**Contributions.** (i) Coverage measured against nominal rather than assumed.
+(ii) A width-versus-coverage comparison separating honest coverage from wide
+intervals. (iii) Evidence that the point-forecast ranking and the interval ranking
+differ. (iv) Per-series distributions behind every aggregate, so the spread is
+visible before a two-decimal ranking is read as settled.
+
+---
+
+## 1. Three results
 
 **1. Nothing achieves its nominal coverage on Hourly. The best is 86.6%.**
 
@@ -55,7 +83,21 @@ measured against. On Weekly it is worse still, at 1.288.
 
 ---
 
-## The bug, which is the point of the tests
+![realised coverage against the nominal 95%](reports/figures/coverage.png)
+
+![what the coverage costs in width](reports/figures/coverage-width.png)
+
+![point accuracy against interval quality](reports/figures/point-vs-interval.png)
+
+![what empirical intervals buy over analytic](reports/figures/interval-gain.png)
+
+![per-series MASE behind every aggregate](reports/figures/per-series.png)
+
+Every number in the tables above is a mean over hundreds of series, and the last
+figure is the spread behind them. The distributions overlap heavily, which is
+worth seeing before reading a two-decimal ranking as settled.
+
+## 2. The bug, which is the point of the tests
 
 My first empirical intervals covered **44–49%** on a nominal 95%. The cause was
 not subtle once seen: I estimated the 2.5% and 97.5% quantiles from **three**
@@ -72,7 +114,7 @@ coverage, which is the test that would have caught it.
 
 ---
 
-## What I won't claim
+## 3. Limitations
 
 - **Weekly has no seasonality in M4's setup** (`m=1`), so `naive`, `naive2` and
   `seasonal_naive` are the *same forecast* there and report identical numbers.
@@ -94,7 +136,7 @@ while the Hourly ones are not (85.2%). The same construction, honest on one
 frequency and not the other — which is the argument for measuring coverage per
 dataset rather than trusting a method's reputation.
 
-## Running it
+## 4. Running it
 
 ```bash
 make setup && make test
@@ -108,6 +150,6 @@ Data is fetched from the public
 [M4-methods](https://github.com/Mcompetitions/M4-methods) repository. No
 credentials, no API keys.
 
-## License
+## 5. Licence
 
 MIT. M4 data © the M4 competition organisers.
