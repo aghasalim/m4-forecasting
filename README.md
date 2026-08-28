@@ -26,11 +26,15 @@ afterthought. This work reverses that emphasis: the same four baseline methods a
 run on the Hourly and Weekly subsets under two interval constructions, and the
 question is whether a nominal 95% interval contains the truth 95% of the time.
 
-Mostly it does not. Weekly analytic intervals land on 94.9%, essentially nominal.
-Everything on Hourly under-covers, worst case 79.1% against a nominal 95%, a
-16-point shortfall on an interval a user would take at face value. Empirical
-intervals under-cover on Weekly too, but buy their coverage far more cheaply:
-analytic intervals on Hourly are up to five times wider and still cover less.
+Mostly it does not. Weekly analytic intervals land on 94.9% for three of the
+four methods, essentially nominal. Everything on Hourly under-covers, worst case
+79.1% against a nominal 95%, a 16-point shortfall on an interval a user would
+take at face value. Empirical intervals under-cover on Weekly too, but buy their
+coverage far more cheaply. Only `seasonal_naive` is both wider and worse on
+Hourly: its analytic interval is 41% wider than its empirical one and still
+covers less, 85.2% against 86.6%. For the other three methods the analytic
+interval does cover more, but it is 4 to 13 times wider, and its MSIS is worse
+in every case.
 
 Point accuracy and interval quality also do not rank the methods the same way.
 OWA and MSIS disagree, so a method chosen on the competition metric carries no
@@ -46,30 +50,36 @@ visible before a two-decimal ranking is read as settled.
 
 ## 1. Three results
 
-**1. Nothing achieves its nominal coverage on Hourly. The best is 86.6%.**
+**1. Nothing achieves its nominal coverage on Hourly. The best is 93.9%, and
+it is the widest interval on the board.**
 
 Every method here advertises a 95% interval. None delivers one:
 
 | method | interval | coverage (nominal 95%) | width | MSIS |
 |---|---|---|---|---|
+| naive | analytic | 93.9% | 65.48 | 71.24 |
+| theta | analytic | 91.3% | 23.52 | 33.30 |
+| naive2 | analytic | 90.2% | 23.52 | 33.19 |
 | **seasonal_naive** | **empirical** | **86.6%** | **4.31** | **8.82** |
 | seasonal_naive | analytic | 85.2% | 6.06 | 11.06 |
 | naive | empirical | 82.8% | 4.87 | 12.10 |
-| theta | analytic | 91.3% | 23.52 | 33.30 |
-| naive2 | analytic | 90.2% | 23.52 | 33.19 |
+| theta | empirical | 79.9% | 5.14 | 12.18 |
+| naive2 | empirical | 79.1% | 5.73 | 14.95 |
 
-Theta and naive2 look closest to nominal, at nearly **four times the width**.
-That is the trap in reading coverage alone: any target is reachable by widening
-until the interval is useless. MSIS charges for width, and on that they are the
-two worst methods on the board.
+The top of that table is sorted by width as much as by coverage. `naive` gets
+closest to nominal, 93.9%, on a width of **65.48**, fifteen times the narrowest
+interval here. That is the trap in reading coverage alone: any target is
+reachable by widening until the interval is useless. MSIS charges for width, and
+the three widest rows are the three worst on it, naive analytic worst of all at
+71.24. The bold row is the best MSIS, not the best coverage.
 
 **2. Measuring your errors beats trusting your model.** Same point forecast,
-two ways of putting an interval around it. For`seasonal_naive`, empirical
+two ways of putting an interval around it. For `seasonal_naive`, empirical
 residual quantiles give **better coverage (86.6% vs 85.2%) at 29% narrower
 width**, and MSIS drops from 11.06 to 8.82. The model's analytic band assumes
 Gaussian, correctly-specified residuals; both are false, in the same direction.
 
-**3. The baseline nobody reports wins outright.** On Hourly,`seasonal_naive`
+**3. The baseline nobody reports wins outright.** On Hourly, `seasonal_naive`
 takes an **OWA of 0.843**: best point accuracy *and* best intervals. Theta, the
 method that won M3, scores **1.013**: worse than the naive2 baseline it is
 measured against. On Weekly it is worse still, at 1.288.
@@ -115,14 +125,14 @@ every test I had asked whether the maths ran, not whether an interval covered
 anything. The fix is a fold count derived from available history (up to 24) with
 a floor of 12 before tail quantiles are trusted at all, below that it falls
 back to a Gaussian scaling of the same residuals, which uses them without
-pretending to resolve their tails.`tests/test_fc.py` now asserts end-to-end
+pretending to resolve their tails. `tests/test_fc.py` now asserts end-to-end
 coverage, which is the test that would have caught it.
 
 ---
 
 ## 3. Limitations
 
-- **Weekly has no seasonality in M4's setup** (`m=1`), so`naive`,`naive2` and
+- **Weekly has no seasonality in M4's setup** (`m=1`), so `naive`, `naive2` and
 `seasonal_naive` are the *same forecast* there and report identical numbers.
   That is correct behaviour, not a bug, and it is why the Weekly table looks
   degenerate.
@@ -137,10 +147,11 @@ coverage, which is the test that would have caught it.
   underperformed statistical methods is well known; testing it myself is the
   obvious next step and is not done here.
 
-Notably, the Weekly analytic intervals *are* well calibrated (94.9% against 95%)
-while the Hourly ones are not (85.2%). The same construction, honest on one
-frequency and not the other, which is the argument for measuring coverage per
-dataset rather than trusting a method's reputation.
+Notably, the Weekly analytic interval for `seasonal_naive` *is* well calibrated
+(94.9% against 95%) while its Hourly one is not (85.2%). The same construction
+on the same method, honest on one frequency and not the other, which is the
+argument for measuring coverage per dataset rather than trusting a method's
+reputation.
 
 ## 4. Running it
 
