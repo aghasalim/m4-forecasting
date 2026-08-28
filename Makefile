@@ -1,4 +1,4 @@
-.PHONY: setup test data backtest
+.PHONY: setup test data backtest figures
 PY := .venv/bin/python
 
 setup:
@@ -12,3 +12,6 @@ test:
 
 backtest:        ## points and intervals on M4's own holdout
 	$(PY) -m src.fc.backtest
+
+figures:         ## redraw the README figures from the committed reports/
+	$(PY) scripts/make_figures.py
