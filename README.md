@@ -85,6 +85,12 @@ measured against. On Weekly it is worse still, at 1.288.
 
 ![realised coverage against the nominal 95%](reports/figures/coverage.png)
 
+![coverage building up one series at a time](reports/figures/coverage-by-series.gif)
+
+*Running coverage as more series are averaged in, with the seasonal_naive
+forecasts and the M4 holdout held fixed, so only the number of series moves and
+each line ends on the coverage reported in the first table.*
+
 ![what the coverage costs in width](reports/figures/coverage-width.png)
 
 ![point accuracy against interval quality](reports/figures/point-vs-interval.png)
