@@ -87,9 +87,9 @@ measured against. On Weekly it is worse still, at 1.288.
 
 ![coverage building up one series at a time](reports/figures/coverage-by-series.gif)
 
-*Running coverage as more series are averaged in, with the seasonal_naive
-forecasts and the M4 holdout held fixed, so only the number of series moves and
-each line ends on the coverage reported in the first table.*
+*Coverage as more series are averaged in, on the same seasonal_naive
+forecasts and the same M4 holdout. Each line ends on the coverage quoted in the
+first table, well short of the nominal 95%.*
 
 ![what the coverage costs in width](reports/figures/coverage-width.png)
 
