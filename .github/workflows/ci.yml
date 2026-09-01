@@ -15,3 +15,68 @@ jobs:
       - run: pip install -r requirements.txt pytest
       # Runs on synthetic series only, so CI needs no data download.
       - run: python -m pytest tests/ -q
+
+  # Every number in the README comes out of one pandas run in
+  # src/fc/backtest.py. If that aggregation were wrong nothing downstream would
+  # notice, because every table and every figure reads the same output. These
+  # rebuild the published numbers from the per series files, and the per series
+  # numbers from the M4 data itself, in eight other languages, and require
+  # agreement. Every toolchain below is already on the runner image except R.
+  cross-language:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # The deepest check reimplements the seasonal naive forecast from the
+      # competition data, which is not in the repository. Fetching it is the
+      # repo's own `make data` and needs no dependencies; if the download fails
+      # that one kernel reports itself skipped instead of failing the build.
+      - name: Fetch the M4 CSVs so the C kernel has something to read
+        continue-on-error: true
+        run: python -m src.fc.fetch
+
+      - name: Install R if the image does not carry it
+        run: |
+          command -v Rscript >/dev/null || {
+            sudo apt-get update
+            sudo apt-get install -y --no-install-recommends r-base-core
+          }
+          Rscript --version
+
+      - name: Versions
+        run: |
+          sqlite3 --version | cut -d" " -f1
+          gcc --version | head -1
+          go version
+          cargo --version
+          node --version
+          ruby --version
+          java -version
+          Rscript --version
+
+      - name: Recompute the published numbers in every language
+        run: ./verify/verify.sh
+
+      # A check that cannot fail is not evidence. Move one published MSIS by
+      # 0.1, require the harness to reject it, put it back and require a pass.
+      - name: The harness rejects a corrupted results file
+        run: |
+          sed -i \
+            "s/^seasonal_naive,analytic,13.9123,1.1932,0.8428,0.8523,6.0572,11.057,414$/seasonal_naive,analytic,13.9123,1.1932,0.8428,0.8523,6.0572,11.157,414/" \
+            reports/summary_Hourly.csv
+          if git diff --quiet reports/summary_Hourly.csv; then
+            echo "the corruption did not apply, so this step proves nothing"
+            exit 1
+          fi
+          if ./verify/verify.sh > /tmp/corrupt.log 2>&1; then
+            echo "the harness passed on a corrupted summary"
+            cat /tmp/corrupt.log
+            exit 1
+          fi
+          echo "rejected the corrupted summary, as it should"
+          git checkout -- reports/summary_Hourly.csv
+          ./verify/verify.sh > /dev/null

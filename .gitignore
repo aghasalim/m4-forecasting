@@ -7,3 +7,5 @@ __pycache__/
 data/*.csv
 .env
 .env.local
+verify/stability/target/
+*.class
