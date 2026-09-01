@@ -177,10 +177,10 @@ static int read_m4(const char *path, double **rows, int *lengths, int max_rows)
         int cap = 64, len = 0;
         double *v = malloc((size_t)cap * sizeof *v);
         if (!v) { fclose(f); return -1; }
-        char *save = NULL;
         int first = 1;
-        for (char *tok = strtok_r(line, ",\r\n", &save); tok;
-             tok = strtok_r(NULL, ",\r\n", &save)) {
+        /* plain strtok: nothing else tokenises while this loop runs, and
+         * strtok_r is not visible under -std=c99 on glibc */
+        for (char *tok = strtok(line, ",\r\n"); tok; tok = strtok(NULL, ",\r\n")) {
             if (first) { first = 0; continue; }  /* the series id */
             char *s = tok;
             if (*s == '"') s++;
