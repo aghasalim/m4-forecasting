@@ -7,6 +7,8 @@
 Forecasting on the [M4 competition](https://github.com/Mcompetitions/M4-methods)
 benchmark, 414 Hourly and 359 Weekly series, scored on M4's own holdout so the
 numbers are comparable to published work rather than to a split I invented.
+Every number below is recomputed from the per series files by independent
+implementations in `verify/`, and CI fails the build if any of them disagree.
 Built by a third-year Applied Computer Science (AI) student.
 
 Nobody staffs a warehouse against the mean. They staff against the upper bound.
@@ -130,77 +132,7 @@ coverage, which is the test that would have caught it.
 
 ---
 
-## 3. Everything here is computed twice
-
-Every number on this page comes out of one pandas run in
-[`src/fc/backtest.py`](src/fc/backtest.py). So does every figure. If the
-aggregation in `summarise` were wrong, nothing downstream would catch it,
-because everything downstream reads the same output: the figures would agree
-with the tables because they are the same numbers. Section 2 is about a bug that
-passed every test I had, and those tests still only ask whether the code runs.
-
-So the published tables are rebuilt from the per series files,
-[`reports/raw_Hourly.csv`](reports/raw_Hourly.csv) and
-[`reports/raw_Weekly.csv`](reports/raw_Weekly.csv), by eight implementations in
-eight other languages, the per series numbers are rebuilt from the M4 data
-itself, and CI fails if any two disagree. A mistake would have to be made
-identically in all of them to survive.
-
-| implementation | what it recomputes | measured agreement |
-| --- | --- | --- |
-| [`verify/summary.sql`](verify/summary.sql) | all 16 published summary rows, from the 6184 per series rows, in SQLite | worst cell 4.8e-05, which is the four decimal rounding in the published files |
-| [`verify/metrics.c`](verify/metrics.c) | every OWA from the sMAPE and MASE of the same series, and the seasonal naive forecast and MASE denominator from the M4 CSVs | OWA exact, 0.0e+00 on 6184 rows; sMAPE within 4.3e-14 and MASE within 1.8e-14 on 414 series |
-| [`verify/gocheck`](verify/gocheck) | the structure of all four results files, and all 39 figures printed in the README | no ragged rows, duplicate columns, empty cells, NaN, Inf or out of range values; every figure within half a unit of its last printed digit |
-| [`verify/verify.R`](verify/verify.R) | the coverage and MSIS claims, by resampling the series, 4000 draws | all 8 Hourly intervals stop below 0.95, the tightest upper end at 0.9461; the three Weekly analytic rows contain it; sign test on MSIS worst p 1.0e-16 |
-| [`verify/stability`](verify/stability) | the ranking under all 773 leave one out deletions, and how much of the R bootstrap is noise, 100,000 draws | the winner never changes; the tightest coverage margin is 24.7 times the scatter of its own interval endpoint |
-| [`verify/summary.js`](verify/summary.js) | `reports/summary.json` against the two summary CSVs, and `n` from the raw files | all 112 cells identical, 0.0e+00 |
-| [`verify/invariants.rb`](verify/invariants.rb) | the structural promises of the backtest, on all 6184 rows | point metrics identical under both interval constructions on all 773 series; naive2 OWA exactly 1; every coverage a whole number of hits out of 48 and 13 |
-| [`verify/Claims.java`](verify/Claims.java) | the 23 derived claims in the prose, which no table contains | all 23 still follow from `reports/`, including the two Weekly numbers no table carries |
-
-Run them all with [`./verify/verify.sh`](verify/verify.sh), which prints
-`8 passed, 0 failed, 0 skipped` on a machine with all eight toolchains and skips
-the ones it cannot find. The C kernel that reads the competition data needs
-`make data` first, since the 6 MB of M4 CSVs are not in the repository; without
-them it says so and the rest of that check still runs.
-
-**Two claims stopped being point estimates.** Section 1 says nothing reaches its
-nominal coverage on Hourly and that the Weekly analytic interval is essentially
-nominal. Both were means over a few hundred series with no error bar. Resampling
-the series in base R puts every Hourly interval's upper end below 0.95, closest
-for `naive` analytic at 0.9461, and the three Weekly analytic rows at 0.9494 do
-contain 0.95, so the contrast the README draws between the two frequencies is a
-real one and not a rounding.
-
-**The Rust asks whether that bootstrap was big enough.** A 4000 draw interval
-endpoint is itself an estimate with its own scatter, and the `naive` analytic
-margin above is only 0.0039 wide. Thirty independent 4000 draw runs put the
-scatter of that endpoint at sd 0.00016 to 0.00048, so the smallest margin is
-24.7 standard deviations. It also deletes every one of the 773 series in turn
-and recomputes all eight group means each time: `seasonal_naive` is the best OWA
-on Hourly in all 414 deletions, its empirical interval is the best MSIS in all
-414, and theta stays above the Naive2 baseline it is measured against, in
-[1.0080, 1.0144] on Hourly and [1.2760, 1.2910] on Weekly.
-
-**The harness is itself checked.** CI moves one published MSIS by 0.1, requires
-the harness to reject it, restores it and requires a pass, because a check that
-cannot fail is not evidence. I ran eleven corruptions locally and each
-implementation catches what it is responsible for and nothing more:
-
-| corruption | rejected by |
-| --- | --- |
-| one MSIS cell in `summary_Hourly.csv`, 11.057 to 11.157 | SQL, Go, JavaScript, Java |
-| one series' OWA in `raw_Hourly.csv` | SQL, C, Ruby |
-| one coverage set to 1.5 | SQL, Go, R |
-| one data row deleted from `raw_Weekly.csv` | SQL, Go, R, Rust, JavaScript, Ruby |
-| a width changed in the README table | Go |
-| `41% wider` changed to `51% wider` in the prose | Java |
-| one value in `summary.json`, CSVs untouched | JavaScript |
-| one in sample observation in `data/Hourly-train.csv` | C |
-| one holdout observation in `data/Hourly-test.csv` | C |
-| `seasonal_naive` empirical MSIS tripled | SQL, R, Rust |
-| `naive` analytic coverage set to 47/48 | SQL, R, Rust |
-
-## 4. Limitations
+## 3. Limitations
 
 - **Weekly has no seasonality in M4's setup** (`m=1`), so `naive`, `naive2` and
 `seasonal_naive` are the *same forecast* there and report identical numbers.
@@ -223,7 +155,7 @@ on the same method, honest on one frequency and not the other, which is the
 argument for measuring coverage per dataset rather than trusting a method's
 reputation.
 
-## 5. Running it
+## 4. Running it
 
 ```bash
 make setup && make test
@@ -237,7 +169,7 @@ Data is fetched from the public
 [M4-methods](https://github.com/Mcompetitions/M4-methods) repository. No
 credentials, no API keys.
 
-## 6. Licence
+## 5. Licence
 
 MIT. M4 data © the M4 competition organisers.
 
