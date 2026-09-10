@@ -7,17 +7,14 @@
 Forecasting on the [M4 competition](https://github.com/Mcompetitions/M4-methods)
 benchmark, 414 Hourly and 359 Weekly series, scored on M4's own holdout so the
 numbers are comparable to published work rather than to a split I invented.
-Every number below is recomputed from the per series files by independent
-implementations in `verify/`, and CI fails the build if any of them disagree.
-Built by a third-year Applied Computer Science (AI) student.
+Every figure quoted below is rebuilt from the per-series output files by
+separate programs under `verify/`, written in languages that share no code with
+the pipeline that produced them. A mismatch is a red build.
 
 Nobody staffs a warehouse against the mean. They staff against the upper bound.
 So this project treats the **prediction interval** as the deliverable and point
 accuracy as the easy part, because a nominal 95% interval that covers 85% of
 the time is not slightly imperfect, it is wrong, and no sMAPE will ever say so.
-
----
-
 
 ---
 
@@ -175,8 +172,7 @@ MIT. M4 data © the M4 competition organisers.
 
 ## References
 
-The papers and sources this implementation follows. Each one is here because
-the code uses the method, the dataset or the metric it describes.
+Everything the code leans on, and the part of it each source supplied.
 
 - **Makridakis, Spiliotis, Assimakopoulos. The M4 Competition: 100,000 time series and 61 forecasting methods. International Journal of Forecasting 36, 2020.** the dataset, the Naive2 benchmark and the OWA metric.
 - **Hyndman, Koehler. Another look at measures of forecast accuracy. International Journal of Forecasting 22, 2006.** MASE.
