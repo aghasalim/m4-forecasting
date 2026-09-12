@@ -61,7 +61,7 @@ jobs:
       - name: Recompute the published numbers in every language
         run: ./verify/verify.sh
 
-      # A check that cannot fail is not evidence. Move one published MSIS by
+      # A check that cannot fail is not a check. Move one published MSIS by
       # 0.1, require the harness to reject it, put it back and require a pass.
       - name: The harness rejects a corrupted results file
         run: |
