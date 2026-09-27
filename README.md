@@ -3,6 +3,7 @@
 [![ci](https://github.com/aghasalim/m4-forecasting/actions/workflows/ci.yml/badge.svg)](https://github.com/aghasalim/m4-forecasting/actions/workflows/ci.yml)
 [![python](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/)
 [![license](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23003660.svg)](https://doi.org/10.5281/zenodo.23003660)
 
 Forecasting on the [M4 competition](https://github.com/Mcompetitions/M4-methods)
 benchmark, 414 Hourly and 359 Weekly series, scored on M4's own holdout so the
