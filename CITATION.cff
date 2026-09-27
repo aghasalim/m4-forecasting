@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: If you use this work, please cite it as below.
+title: "Forecasting, the interval is the forecast, and mine were wrong"
+abstract: "M4 forecasting judged on its prediction intervals: nothing reaches nominal 95% coverage, measured residuals beat analytic bands at 29% narrower width, and seasonal naive wins."
+type: software
+authors:
+  - family-names: Mustafazada
+    given-names: Aghasalim
+    orcid: "https://orcid.org/0009-0001-8746-4582"
+    affiliation: "Howest University of Applied Sciences"
+repository-code: "https://github.com/aghasalim/m4-forecasting"
+url: "https://aghasalim.github.io/"
+license: MIT
+keywords:
+  - forecasting
+  - m4 competition
+  - machine learning
+  - prediction intervals
+  - time series
+  - uncertainty quantification
