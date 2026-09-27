@@ -135,16 +135,19 @@ coverage, which is the test that would have caught it.
 `seasonal_naive` are the *same forecast* there and report identical numbers.
   That is correct behaviour, not a bug, and it is why the Weekly table looks
   degenerate.
-- **I have not compared these against the published M4 leaderboard.** OWA here
-  is computed against my own Naive2 implementation, which is the competition's
-  definition but not necessarily identical to their code to the decimal. Ranking
-  claims are internal to this repo.
-- **Two frequencies, not six.** Hourly and Weekly are 773 of M4's 100,000
-  series. Hourly is strongly seasonal and Weekly is not, which is a deliberate
-  contrast, but Monthly and Quarterly dominate the real benchmark and are absent.
-- **No ML models.** Only statistical baselines. The M4 finding that pure ML
-  underperformed statistical methods is well known; testing it myself is the
-  obvious next step and is not done here.
+
+**I have not compared these against the published M4 leaderboard.** OWA here
+is computed against my own Naive2 implementation, which is the competition's
+definition but not necessarily identical to their code to the decimal. Ranking
+claims are internal to this repo.
+
+**Two frequencies, not six.** Hourly and Weekly are 773 of M4's 100,000
+series. Hourly is strongly seasonal and Weekly is not, which is a deliberate
+contrast, but Monthly and Quarterly dominate the real benchmark and are absent.
+
+**No ML models.** Only statistical baselines. The M4 finding that pure ML
+underperformed statistical methods is well known; testing it myself is the
+obvious next step and is not done here.
 
 Notably, the Weekly analytic interval for `seasonal_naive` *is* well calibrated
 (94.9% against 95%) while its Hourly one is not (85.2%). The same construction
