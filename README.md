@@ -39,7 +39,7 @@ Point accuracy and interval quality also do not rank the methods the same way.
 OWA and MSIS disagree, so a method chosen on the competition metric carries no
 guarantee about the intervals it produces.
 
-**Contributions.** (i) Coverage measured against nominal rather than assumed.
+Contributions. (i) Coverage measured against nominal instead of assumed.
 (ii) A width-versus-coverage comparison separating honest coverage from wide
 intervals. (iii) Evidence that the point-forecast ranking and the interval ranking
 differ. (iv) Per-series distributions behind every aggregate, so the spread is
@@ -72,13 +72,13 @@ reachable by widening until the interval is useless. MSIS charges for width, and
 the three widest rows are the three worst on it, naive analytic worst of all at
 71.24. The bold row is the best MSIS, not the best coverage.
 
-**2. Measuring your errors beats trusting your model.** Same point forecast,
+2. Measuring your errors beats trusting your model. Same point forecast,
 two ways of putting an interval around it. For `seasonal_naive`, empirical
 residual quantiles give **better coverage (86.6% vs 85.2%) at 29% narrower
 width**, and MSIS drops from 11.06 to 8.82. The model's analytic band assumes
 Gaussian, correctly-specified residuals; both are false, in the same direction.
 
-**3. The baseline nobody reports wins outright.** On Hourly, `seasonal_naive`
+3. The baseline nobody reports wins outright. On Hourly, `seasonal_naive`
 takes an **OWA of 0.843**: best point accuracy *and* best intervals. Theta, the
 method that won M3, scores **1.013**: worse than the naive2 baseline it is
 measured against. On Weekly it is worse still, at 1.288.
@@ -136,23 +136,23 @@ coverage, which is the test that would have caught it.
   That is correct behaviour, not a bug, and it is why the Weekly table looks
   degenerate.
 
-**I have not compared these against the published M4 leaderboard.** OWA here
+I have not compared these against the published M4 leaderboard. OWA here
 is computed against my own Naive2 implementation, which is the competition's
 definition but not necessarily identical to their code to the decimal. Ranking
 claims are internal to this repo.
 
-**Two frequencies, not six.** Hourly and Weekly are 773 of M4's 100,000
+Two frequencies, not six. Hourly and Weekly are 773 of M4's 100,000
 series. Hourly is strongly seasonal and Weekly is not, which is a deliberate
 contrast, but Monthly and Quarterly dominate the real benchmark and are absent.
 
-**No ML models.** Only statistical baselines. The M4 finding that pure ML
+No ML models. Only statistical baselines. The M4 finding that pure ML
 underperformed statistical methods is well known; testing it myself is the
 obvious next step and is not done here.
 
 Notably, the Weekly analytic interval for `seasonal_naive` *is* well calibrated
 (94.9% against 95%) while its Hourly one is not (85.2%). The same construction
 on the same method, honest on one frequency and not the other, which is the
-argument for measuring coverage per dataset rather than trusting a method's
+argument for measuring coverage per dataset instead of trusting a method's
 reputation.
 
 ## 4. Running it
