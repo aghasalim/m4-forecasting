@@ -6,7 +6,7 @@
 
 Forecasting on the [M4 competition](https://github.com/Mcompetitions/M4-methods)
 benchmark, 414 Hourly and 359 Weekly series, scored on M4's own holdout so the
-numbers are comparable to published work rather than to a split I invented.
+numbers are comparable to published work.
 Every figure quoted below is rebuilt from the per-series output files by
 separate programs under `verify/`, written in languages that share no code with
 the pipeline that produced them. A mismatch is a red build.
@@ -39,9 +39,8 @@ Point accuracy and interval quality also do not rank the methods the same way.
 OWA and MSIS disagree, so a method chosen on the competition metric carries no
 guarantee about the intervals it produces.
 
-Contributions. (i) Coverage measured against nominal instead of assumed.
-(ii) A width-versus-coverage comparison separating honest coverage from wide
-intervals. (iii) Evidence that the point-forecast ranking and the interval ranking
+Contributions. (i) Coverage measured against nominal.
+(ii) A width-versus-coverage comparison separating real coverage from intervals that are just wide. (iii) Evidence that the point-forecast ranking and the interval ranking
 differ. (iv) Per-series distributions behind every aggregate, so the spread is
 visible before a two-decimal ranking is read as settled.
 
@@ -151,9 +150,7 @@ obvious next step and is not done here.
 
 Notably, the Weekly analytic interval for `seasonal_naive` *is* well calibrated
 (94.9% against 95%) while its Hourly one is not (85.2%). The same construction
-on the same method, honest on one frequency and not the other, which is the
-argument for measuring coverage per dataset instead of trusting a method's
-reputation.
+on the same method, well calibrated on one frequency and not the other, which is the argument for measuring coverage per dataset.
 
 ## 4. Running it
 
