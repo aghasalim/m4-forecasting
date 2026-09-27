@@ -132,7 +132,7 @@ coverage, which is the test that would have caught it.
 
 - **Weekly has no seasonality in M4's setup** (`m=1`), so `naive`, `naive2` and
 `seasonal_naive` are the *same forecast* there and report identical numbers.
-  That is correct behaviour, not a bug, and it is why the Weekly table looks
+  That is correct behaviour, and it is why the Weekly table looks
   degenerate.
 
 I have not compared these against the published M4 leaderboard. OWA here
@@ -140,7 +140,7 @@ is computed against my own Naive2 implementation, which is the competition's
 definition but not necessarily identical to their code to the decimal. Ranking
 claims are internal to this repo.
 
-Two frequencies, not six. Hourly and Weekly are 773 of M4's 100,000
+Two frequencies of the six. Hourly and Weekly are 773 of M4's 100,000
 series. Hourly is strongly seasonal and Weekly is not, which is a deliberate
 contrast, but Monthly and Quarterly dominate the real benchmark and are absent.
 
