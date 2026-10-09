@@ -79,16 +79,23 @@ width**, and MSIS drops from 11.06 to 8.82. The model's analytic band assumes
 Gaussian, correctly-specified residuals; both are false, in the same direction.
 
 3. The baseline nobody reports wins outright. On Hourly, `seasonal_naive`
-takes an **OWA of 0.843**: best point accuracy *and* best intervals. Theta, the
-method that won M3, scores **1.013**: worse than the naive2 baseline it is
-measured against. On Weekly it is worse still, at 1.288.
+takes an **OWA of 0.663**: best point accuracy *and* best intervals. Theta, the
+method that won M3, scores **0.908**: better than the naive2 baseline it is
+measured against, but well behind the seasonal naive. On Weekly, where there is
+no season to exploit, it is worse than naive2, at 1.178.
+
+OWA here is M4's definition: the method's mean sMAPE over Naive2's mean sMAPE
+and its mean MASE over Naive2's mean MASE, averaged. An earlier version of this
+README averaged a per series OWA instead, which gave 0.843 and 1.013 and made
+theta look worse than naive2 on Hourly. That was the wrong aggregation, and the
+theta conclusion flipped once it was fixed.
 
 | Hourly | sMAPE | MASE | OWA |
 |---|---|---|---|
-| **seasonal_naive** | **13.91** | **1.19** | **0.843** |
-| theta | 15.41 | 2.11 | 1.013 |
+| **seasonal_naive** | **13.91** | **1.19** | **0.663** |
+| theta | 15.41 | 2.11 | 0.908 |
 | naive2 (baseline) | 17.36 | 2.27 | 1.000 |
-| naive | 43.00 | 11.61 | 5.118 |
+| naive | 43.00 | 11.61 | 3.793 |
 
 ---
 
