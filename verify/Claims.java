@@ -2,7 +2,7 @@
 // recomputes.
 //
 // Section 1 is mostly arithmetic on the summary tables: an interval "41% wider"
-// than another, "fifteen times the narrowest", a "16-point shortfall", "4 to 13
+// than another, "fifteen times the narrowest", a "15-point shortfall", "2 to 13
 // times wider", the MSIS that is "worse in every case". Those ratios were
 // worked out by hand once and typed into the page. The tables themselves are
 // checked elsewhere; these derived numbers were checked by nobody, and two of
@@ -115,9 +115,9 @@ public class Claims {
                 100 * bestCover.get("coverage95"), 1);
         holds("and it is the widest interval", "it is the widest interval on the board",
                 bestCover == widest);
-        claim("the worst coverage on Hourly", "worst case 79.1% against a nominal 95%", 79.1,
+        claim("the worst coverage on Hourly", "worst case 79.9% against a nominal 95%", 79.9,
                 100 * worstCover.get("coverage95"), 1);
-        claim("its shortfall from nominal", "a 16-point shortfall", 16,
+        claim("its shortfall from nominal", "a 15-point shortfall", 15,
                 95 - 100 * worstCover.get("coverage95"), 0);
         claim("widest over narrowest interval", "fifteen times the narrowest", 15,
                 widest.get("width") / narrowest.get("width"), 0);
@@ -153,8 +153,8 @@ public class Claims {
             lo = Math.min(lo, ratio);
             hi = Math.max(hi, ratio);
         }
-        claim("the other three, narrowest ratio", "4 to 13 times wider", 4, Math.floor(lo), 0);
-        claim("the other three, widest ratio", "4 to 13 times wider", 13, Math.floor(hi), 0);
+        claim("the other three, narrowest ratio", "2 to 13 times wider", 2, Math.floor(lo), 0);
+        claim("the other three, widest ratio", "2 to 13 times wider", 13, Math.floor(hi), 0);
         holds("analytic MSIS worse on all four", "its MSIS is worse in every case", msisWorseEverywhere);
 
         System.out.println("\nthe ranking, and the two Weekly numbers no table carries");
@@ -163,12 +163,12 @@ public class Claims {
             if (r.get("OWA") < bestOwa.get("OWA")) bestOwa = r;
             if (r.get("MSIS") < bestMsis.get("MSIS")) bestMsis = r;
         }
-        claim("the best OWA on Hourly", "an **OWA of 0.663**", 0.663, bestOwa.get("OWA"), 3);
-        holds("which is seasonal_naive", "`seasonal_naive` takes an **OWA of 0.663**", bestOwa.method().equals("seasonal_naive"));
+        claim("the best OWA on Hourly", "an **OWA of 0.628**", 0.628, bestOwa.get("OWA"), 3);
+        holds("which is seasonal_naive", "`seasonal_naive` takes an **OWA of 0.628**", bestOwa.method().equals("seasonal_naive"));
         holds("best MSIS is the bold row",
                 "The bold row is the best MSIS, not the best coverage",
                 bestMsis.method().equals("seasonal_naive") && bestMsis.interval().equals("empirical"));
-        claim("theta on Hourly", "scores **0.908**", 0.908,
+        claim("theta on Hourly", "scores **0.859**", 0.859,
                 find(hourly, "theta", "analytic").get("OWA"), 3);
         holds("better than the naive2 baseline", "better than the naive2 baseline",
                 find(hourly, "theta", "analytic").get("OWA")

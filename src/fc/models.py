@@ -69,24 +69,59 @@ def naive(y: np.ndarray, h: int, m: int) -> Forecast:
     return Forecast(pt, pt - band, pt + band, "naive")
 
 
+def seasonality_test(y: np.ndarray, m: int) -> bool:
+    """M4's 90% autocorrelation test for seasonality at lag m.
+
+    Seasonal when |acf(m)| exceeds 1.645 * sqrt((1 + 2 * sum_{k<m} acf(k)^2) / n),
+    as in the competition's R benchmark code. M4 only runs it when the series
+    has at least three full seasons.
+    """
+    if m <= 1 or len(y) < 3 * m:
+        return False
+    d = y - np.mean(y)
+    denom = float(np.sum(d * d))
+    if denom == 0:
+        return False
+    acf = np.array([np.sum(d[k:] * d[:-k]) / denom for k in range(1, m + 1)])
+    limit = 1.645 * np.sqrt((1 + 2 * np.sum(acf[: m - 1] ** 2)) / len(y))
+    return bool(abs(acf[m - 1]) > limit)
+
+
+def seasonal_indices(y: np.ndarray, m: int) -> np.ndarray:
+    """Classical multiplicative decomposition, as M4's benchmarks use.
+
+    Centred moving average of order m (2 x m when m is even) for the trend, the
+    ratio of the series to it averaged per season position, then normalised to
+    mean 1. Index k applies to every t with t % m == k.
+    """
+    if m % 2 == 0:
+        w = np.r_[0.5, np.ones(m - 1), 0.5] / m
+    else:
+        w = np.ones(m) / m
+    half = len(w) // 2
+    trend = np.full(len(y), np.nan)
+    trend[half : len(y) - half] = np.convolve(y, w, mode="valid")
+    ratio = y / trend
+    idx = np.array([np.nanmean(ratio[k::m]) for k in range(m)])
+    return idx / np.mean(idx)
+
+
 def naive2(y: np.ndarray, h: int, m: int) -> Forecast:
-    """M4's official baseline: seasonally adjust, naive forecast, re-seasonalise.
+    """M4's official baseline: test for seasonality, and if the series is
+    seasonal, remove it with a classical multiplicative decomposition, forecast
+    naively, and put it back.
 
     Every OWA in this repo is relative to this, so it is computed rather than
     taken from a paper.
     """
-    if m > 1 and len(y) >= 2 * m:
-        idx = np.arange(len(y))
-        seas = np.array([np.mean(y[idx % m == k]) for k in range(m)])
-        overall = np.mean(y)
-        seas = seas - overall if overall == 0 else seas / overall
-        seas = np.where(np.abs(seas) < 1e-8, 1.0, seas)
-        deseas = y / seas[idx % m]
-        pt = np.repeat(deseas[-1], h)
-        fidx = (np.arange(len(y), len(y) + h)) % m
-        pt = pt * seas[fidx]
-    else:
-        pt = np.repeat(float(y[-1]), h)
+    pt = np.repeat(float(y[-1]), h)
+    if seasonality_test(y, m):
+        seas = seasonal_indices(y, m)
+        if np.all(np.isfinite(seas)) and np.all(seas != 0):
+            idx = np.arange(len(y))
+            deseas = y / seas[idx % m]
+            fidx = np.arange(len(y), len(y) + h) % m
+            pt = deseas[-1] * seas[fidx]
     s = _resid_sigma(y, m)
     band = Z95 * s * np.sqrt(np.arange(1, h + 1))
     return Forecast(pt, pt - band, pt + band, "naive2")
