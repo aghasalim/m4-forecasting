@@ -109,3 +109,27 @@ def test_owa_is_computed_from_aggregates_not_averaged_per_series():
     want = 0.5 * (6.0 / 10.5 + 0.6 / 1.05)
     assert out.loc[("x", "analytic"), "OWA"] == pytest.approx(want, abs=1e-4)
     assert out.loc[("naive2", "empirical"), "OWA"] == pytest.approx(1.0)
+
+
+def test_naive2_skips_seasonal_adjustment_when_the_test_says_no_season():
+    """M4's Naive2 only deseasonalises a series that passes its 90% acf test.
+    White noise has no season, so Naive2 must equal the plain naive forecast."""
+    y = 100 + np.random.default_rng(3).normal(0, 1, 24 * 10)
+    assert not Mod.seasonality_test(y, 24)
+    assert np.allclose(Mod.naive2(y, 48, 24).point, y[-1])
+
+
+def test_naive2_uses_classical_decomposition_on_a_seasonal_series():
+    """A trending series with a multiplicative season: the decomposition must
+    recover the season, so Naive2's forecast keeps the seasonal shape."""
+    m = 24
+    season = 1 + 0.5 * np.sin(2 * np.pi * np.arange(m) / m)
+    t = np.arange(m * 20)
+    y = (50 + 0.5 * t) * season[t % m]
+    assert Mod.seasonality_test(y, m)
+    idx = Mod.seasonal_indices(y, m)
+    # Classical decomposition is only approximate under a trend, so not exact.
+    assert np.allclose(idx, season / season.mean(), atol=0.01)
+    f = Mod.naive2(y, m, m).point
+    level = y[-1] / idx[(len(y) - 1) % m]
+    assert np.allclose(f, level * idx[np.arange(len(y), len(y) + m) % m])

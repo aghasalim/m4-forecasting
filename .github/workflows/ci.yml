@@ -66,7 +66,7 @@ jobs:
       - name: The harness rejects a corrupted results file
         run: |
           sed -i \
-            "s/^seasonal_naive,analytic,13.9123,1.1932,0.6633,0.8523,6.0572,11.057,414$/seasonal_naive,analytic,13.9123,1.1932,0.6633,0.8523,6.0572,11.157,414/" \
+            "s/^seasonal_naive,analytic,13.9123,1.1932,0.6275,0.8523,6.0572,11.057,414$/seasonal_naive,analytic,13.9123,1.1932,0.6275,0.8523,6.0572,11.157,414/" \
             reports/summary_Hourly.csv
           if git diff --quiet reports/summary_Hourly.csv; then
             echo "the corruption did not apply, so this step proves nothing"

@@ -28,12 +28,12 @@ question is whether a nominal 95% interval contains the truth 95% of the time.
 
 Mostly it does not. Weekly analytic intervals land on 94.9% for three of the
 four methods, essentially nominal. Everything on Hourly under-covers, worst case
-79.1% against a nominal 95%, a 16-point shortfall on an interval a user would
+79.9% against a nominal 95%, a 15-point shortfall on an interval a user would
 take at face value. Empirical intervals under-cover on Weekly too, but buy their
 coverage far more cheaply. Only `seasonal_naive` is both wider and worse on
 Hourly: its analytic interval is 41% wider than its empirical one and still
 covers less, 85.2% against 86.6%. For the other three methods the analytic
-interval does cover more, but it is 4 to 13 times wider, and its MSIS is worse
+interval does cover more, but it is 2 to 13 times wider, and its MSIS is worse
 in every case.
 
 Point accuracy and interval quality also do not rank the methods the same way.
@@ -58,12 +58,12 @@ Every method here advertises a 95% interval. None delivers one:
 |---|---|---|---|---|
 | naive | analytic | 93.9% | 65.48 | 71.24 |
 | theta | analytic | 91.3% | 23.52 | 33.30 |
-| naive2 | analytic | 90.2% | 23.52 | 33.19 |
+| naive2 | analytic | 89.9% | 23.52 | 35.07 |
 | **seasonal_naive** | **empirical** | **86.6%** | **4.31** | **8.82** |
 | seasonal_naive | analytic | 85.2% | 6.06 | 11.06 |
 | naive | empirical | 82.8% | 4.87 | 12.10 |
+| naive2 | empirical | 82.7% | 11.28 | 19.57 |
 | theta | empirical | 79.9% | 5.14 | 12.18 |
-| naive2 | empirical | 79.1% | 5.73 | 14.95 |
 
 The top of that table is sorted by width as much as by coverage. `naive` gets
 closest to nominal, 93.9%, on a width of **65.48**, fifteen times the narrowest
@@ -79,8 +79,8 @@ width**, and MSIS drops from 11.06 to 8.82. The model's analytic band assumes
 Gaussian, correctly-specified residuals; both are false, in the same direction.
 
 3. The baseline nobody reports wins outright. On Hourly, `seasonal_naive`
-takes an **OWA of 0.663**: best point accuracy *and* best intervals. Theta, the
-method that won M3, scores **0.908**: better than the naive2 baseline it is
+takes an **OWA of 0.628**: best point accuracy *and* best intervals. Theta, the
+method that won M3, scores **0.859**: better than the naive2 baseline it is
 measured against, but well behind the seasonal naive. On Weekly, where there is
 no season to exploit, it is worse than naive2, at 1.178.
 
@@ -90,12 +90,18 @@ README averaged a per series OWA instead, which gave 0.843 and 1.013 and made
 theta look worse than naive2 on Hourly. That was the wrong aggregation, and the
 theta conclusion flipped once it was fixed.
 
+Naive2 is M4's: a 90% autocorrelation test for seasonality at lag m, and only
+for the series that pass it, a classical multiplicative decomposition, a naive
+forecast of the adjusted series and the season put back. On Hourly it reproduces
+the sMAPE of 18.383 and MASE of 2.395 that M4 published for Naive2. My first
+version skipped the test and used raw seasonal means, which gave 17.36 and 2.27.
+
 | Hourly | sMAPE | MASE | OWA |
 |---|---|---|---|
-| **seasonal_naive** | **13.91** | **1.19** | **0.663** |
-| theta | 15.41 | 2.11 | 0.908 |
-| naive2 (baseline) | 17.36 | 2.27 | 1.000 |
-| naive | 43.00 | 11.61 | 3.793 |
+| **seasonal_naive** | **13.91** | **1.19** | **0.628** |
+| theta | 15.41 | 2.11 | 0.859 |
+| naive2 (baseline) | 18.38 | 2.40 | 1.000 |
+| naive | 43.00 | 11.61 | 3.593 |
 
 ---
 
@@ -143,9 +149,9 @@ coverage, which is the test that would have caught it.
   That is correct behaviour, and it is why the Weekly table looks
   degenerate.
 
-I have not compared these against the published M4 leaderboard. OWA here
-is computed against my own Naive2 implementation, which is the competition's
-definition but not necessarily identical to their code to the decimal. Ranking
+OWA here is computed against my own Naive2 implementation. On Hourly its sMAPE
+and MASE match the values M4 published for Naive2 to three decimals, but I have
+not compared the other methods against the published leaderboard, so ranking
 claims are internal to this repo.
 
 Two frequencies of the six. Hourly and Weekly are 773 of M4's 100,000
