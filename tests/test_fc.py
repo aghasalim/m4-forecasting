@@ -89,3 +89,23 @@ def test_empirical_intervals_cover_roughly_nominally():
     pt = Mod.seasonal_naive(ins, 48, 24).point
     cov = M.coverage(act, pt - lo_d, pt + hi_d)
     assert cov > 0.80, f"coverage {cov:.2f} far below nominal 0.95"
+
+
+def test_owa_is_computed_from_aggregates_not_averaged_per_series():
+    """M4's OWA is mean sMAPE / Naive2 mean sMAPE and mean MASE / Naive2 mean
+    MASE, averaged. The mean of per series OWAs is a different number: here one
+    series where Naive2 is nearly perfect blows the per series ratio up."""
+    import pandas as pd
+    from src.fc.backtest import summarise
+
+    rows = []
+    for s, (sb, mb, sm, mm) in enumerate([(1.0, 0.1, 2.0, 0.2), (20.0, 2.0, 10.0, 1.0)]):
+        for iv in ("analytic", "empirical"):
+            for name, sm_, mm_ in (("naive2", sb, mb), ("x", sm, mm)):
+                rows.append({"series": s, "method": name, "interval": iv,
+                             "smape": sm_, "mase": mm_, "cover95": 1.0, "width": 1.0,
+                             "msis": 1.0, "owa": M.owa(sm_, mm_, sb, mb)})
+    out = summarise(pd.DataFrame(rows)).set_index(["method", "interval"])
+    want = 0.5 * (6.0 / 10.5 + 0.6 / 1.05)
+    assert out.loc[("x", "analytic"), "OWA"] == pytest.approx(want, abs=1e-4)
+    assert out.loc[("naive2", "empirical"), "OWA"] == pytest.approx(1.0)

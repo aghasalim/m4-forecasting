@@ -103,16 +103,28 @@ for (freq in c("Hourly", "Weekly")) {
 }
 
 # The ranking claim: seasonal_naive beats the Naive2 baseline outright on
-# Hourly, which means its OWA interval must sit entirely below 1.
+# Hourly, which means its OWA interval must sit entirely below 1. OWA is M4's
+# ratio of aggregates, so each draw resamples the series and recomputes both
+# means for seasonal_naive and for Naive2 on that same resample.
 raw <- read.csv(file.path(root, "reports", "raw_Hourly.csv"))
-sub <- raw[raw$method == "seasonal_naive" & raw$interval == "analytic", ]
-n <- nrow(sub)
+pick <- function(m) {
+    s <- raw[raw$method == m & raw$interval == "analytic", ]
+    s[order(s$series), ]
+}
+sn <- pick("seasonal_naive")
+nb <- pick("naive2")
+n <- nrow(sn)
+agg_owa <- function(i) (mean(sn$smape[i]) / mean(nb$smape[i]) + mean(sn$mase[i]) / mean(nb$mase[i])) / 2
 idx <- matrix(sample.int(n, n * DRAWS, replace = TRUE), nrow = DRAWS)
-ci <- boot_ci(sub$owa, idx)
-ok <- ci[2] < 1
+draws <- apply(idx, 1, agg_owa)
+ci <- quantile(draws, c(0.025, 0.975), names = FALSE)
+point <- agg_owa(seq_len(n))
+pub <- read.csv(file.path(root, "reports", "summary_Hourly.csv"))
+pub_owa <- pub$OWA[pub$method == "seasonal_naive" & pub$interval == "analytic"]
+ok <- ci[2] < 1 && abs(point - pub_owa) <= MEAN_TOL
 failures <- failures + !ok
 cat(sprintf("\nHourly seasonal_naive OWA %.4f  95%% CI [%.4f, %.4f]  below 1  %s\n",
-            mean(sub$owa), ci[1], ci[2], if (ok) "ok" else "FAIL"))
+            point, ci[1], ci[2], if (ok) "ok" else "FAIL"))
 
 if (failures > 0) {
     cat(sprintf("\n%d checks failed\n", failures))

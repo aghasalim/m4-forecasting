@@ -36,7 +36,6 @@ CREATE TEMP VIEW recomputed AS
            "interval"                        AS iv,
            AVG(CAST(smape   AS REAL))        AS smape,
            AVG(CAST(mase    AS REAL))        AS mase,
-           AVG(CAST(owa     AS REAL))        AS owa,
            AVG(CAST(cover95 AS REAL))        AS cover,
            AVG(CAST(width   AS REAL))        AS width,
            AVG(CAST(msis    AS REAL))        AS msis,
@@ -44,6 +43,15 @@ CREATE TEMP VIEW recomputed AS
            COUNT(*)                          AS rows_read
     FROM raw
     GROUP BY freq, method, "interval";
+
+-- OWA as M4 defines it: each aggregate error over Naive2's aggregate error,
+-- not the mean of the per series ratios in the owa column.
+CREATE TEMP VIEW with_owa AS
+    SELECT r.*,
+           (r.smape / b.smape + r.mase / b.mase) / 2.0 AS owa
+    FROM recomputed r
+    JOIN recomputed b
+      ON b.freq = r.freq AND b.iv = r.iv AND b.method = 'naive2';
 
 CREATE TEMP VIEW cmp AS
     SELECT r.freq, r.method, r.iv, r.rows_read, r.n,
@@ -54,7 +62,7 @@ CREATE TEMP VIEW cmp AS
                ABS(r.width - CAST(p.width      AS REAL)),
                ABS(r.msis  - CAST(p.MSIS       AS REAL))) AS worst,
            ABS(r.n - CAST(p.n AS INTEGER))                AS n_off
-    FROM recomputed r
+    FROM with_owa r
     JOIN pub p
       ON p.freq = r.freq AND p.method = r.method AND p."interval" = r.iv;
 

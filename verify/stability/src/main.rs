@@ -2,8 +2,8 @@
 //!
 //! 1. Does the ranking depend on particular series? The README says
 //!    `seasonal_naive` "wins outright" on Hourly, that its empirical interval is
-//!    the best MSIS on the board, and that theta comes out worse than the Naive2
-//!    baseline on both frequencies. Those are read off means over 414 and 359
+//!    the best MSIS on the board, and that theta beats the Naive2 baseline on
+//!    Hourly but not on Weekly. Those are read off means over 414 and 359
 //!    series. This deletes every series in turn, all 773 of them, recomputes all
 //!    eight group means each time, and checks the ordering never changes. It is
 //!    the exhaustive version of "is this robust", which is cheap here and was
@@ -53,7 +53,8 @@ impl Rng {
 struct Group {
     method: String,
     interval: String,
-    owa: Vec<f64>,
+    smape: Vec<f64>,
+    mase: Vec<f64>,
     msis: Vec<f64>,
     cover: Vec<f64>,
 }
@@ -80,7 +81,8 @@ fn load(root: &str, freq: &str) -> (usize, Vec<Group>) {
         })
     };
     let (c_series, c_method, c_iv) = (col("series"), col("method"), col("interval"));
-    let (c_owa, c_msis, c_cover) = (col("owa"), col("msis"), col("cover95"));
+    let (c_smape, c_mase) = (col("smape"), col("mase"));
+    let (c_msis, c_cover) = (col("msis"), col("cover95"));
 
     let mut groups: Vec<Group> = Vec::new();
     let mut n_series = 0usize;
@@ -98,21 +100,23 @@ fn load(root: &str, freq: &str) -> (usize, Vec<Group>) {
                 groups.push(Group {
                     method: method.to_string(),
                     interval: iv.to_string(),
-                    owa: Vec::new(),
+                    smape: Vec::new(),
+                    mase: Vec::new(),
                     msis: Vec::new(),
                     cover: Vec::new(),
                 });
                 groups.last_mut().unwrap()
             }
         };
-        g.owa.push(f[c_owa].parse().expect("owa is not a number"));
+        g.smape.push(f[c_smape].parse().expect("smape is not a number"));
+        g.mase.push(f[c_mase].parse().expect("mase is not a number"));
         g.msis.push(f[c_msis].parse().expect("msis is not a number"));
         g.cover.push(f[c_cover].parse().expect("cover95 is not a number"));
     }
 
     for g in &groups {
-        if g.owa.len() != n_series {
-            eprintln!("{} has {} rows, expected {}", g.name(), g.owa.len(), n_series);
+        if g.msis.len() != n_series {
+            eprintln!("{} has {} rows, expected {}", g.name(), g.msis.len(), n_series);
             exit(2);
         }
     }
@@ -192,8 +196,22 @@ fn main() {
         let (n, groups) = load(root, freq);
         println!("{}: {} series, {} method/interval groups", freq, n, groups.len());
 
-        let owa = jackknife(&groups, |g| &g.owa, n);
+        let smape = jackknife(&groups, |g| &g.smape, n);
+        let mase = jackknife(&groups, |g| &g.mase, n);
         let msis = jackknife(&groups, |g| &g.msis, n);
+        // OWA is M4's ratio of aggregates, so each deletion recomputes it from
+        // the leave-one-out means of the method and of Naive2.
+        let base = groups
+            .iter()
+            .position(|g| g.method == "naive2" && g.interval == "analytic")
+            .expect("no naive2/analytic group");
+        let owa: Vec<Vec<f64>> = (0..groups.len())
+            .map(|k| {
+                (0..n)
+                    .map(|j| (smape[k][j] / smape[base][j] + mase[k][j] / mase[base][j]) / 2.0)
+                    .collect()
+            })
+            .collect();
 
         // OWA is a property of the point forecast, so the two interval rows of
         // a method carry the same value; rank the methods on the analytic rows.
@@ -231,7 +249,8 @@ fn main() {
             "naive/empirical"
         };
         let msis_ok = msis_winners.len() == 1 && msis_winners.contains(msis_expected);
-        let theta_ok = theta_min > 1.0;
+        // Theta beats Naive2 on Hourly and loses to it on Weekly.
+        let theta_ok = if freq == "Hourly" { theta_max < 1.0 } else { theta_min > 1.0 };
 
         failures += !owa_ok as i32 + !msis_ok as i32 + !theta_ok as i32;
         println!(
@@ -247,9 +266,10 @@ fn main() {
             if msis_ok { "ok" } else { "FAIL" }
         );
         println!(
-            "  theta OWA stays in [{:.4}, {:.4}], above the Naive2 baseline of 1  {}",
+            "  theta OWA stays in [{:.4}, {:.4}], {} the Naive2 baseline of 1  {}",
             theta_min,
             theta_max,
+            if freq == "Hourly" { "below" } else { "above" },
             if theta_ok { "ok" } else { "FAIL" }
         );
     }

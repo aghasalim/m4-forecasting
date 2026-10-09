@@ -6,7 +6,7 @@
 // times wider", the MSIS that is "worse in every case". Those ratios were
 // worked out by hand once and typed into the page. The tables themselves are
 // checked elsewhere; these derived numbers were checked by nobody, and two of
-// them, the Weekly 94.9% coverage and theta's 1.288 OWA, do not appear in any
+// them, the Weekly 94.9% coverage and theta's 1.178 OWA, do not appear in any
 // table at all, so nothing else in this harness would notice if they drifted.
 //
 // Each check below does two things: it requires the sentence to still be in
@@ -163,17 +163,20 @@ public class Claims {
             if (r.get("OWA") < bestOwa.get("OWA")) bestOwa = r;
             if (r.get("MSIS") < bestMsis.get("MSIS")) bestMsis = r;
         }
-        claim("the best OWA on Hourly", "an **OWA of 0.843**", 0.843, bestOwa.get("OWA"), 3);
-        holds("which is seasonal_naive", "`seasonal_naive` takes an **OWA of 0.843**", bestOwa.method().equals("seasonal_naive"));
+        claim("the best OWA on Hourly", "an **OWA of 0.663**", 0.663, bestOwa.get("OWA"), 3);
+        holds("which is seasonal_naive", "`seasonal_naive` takes an **OWA of 0.663**", bestOwa.method().equals("seasonal_naive"));
         holds("best MSIS is the bold row",
                 "The bold row is the best MSIS, not the best coverage",
                 bestMsis.method().equals("seasonal_naive") && bestMsis.interval().equals("empirical"));
-        claim("theta on Hourly", "scores **1.013**", 1.013,
+        claim("theta on Hourly", "scores **0.908**", 0.908,
                 find(hourly, "theta", "analytic").get("OWA"), 3);
-        holds("worse than the naive2 baseline", "worse than the naive2 baseline",
+        holds("better than the naive2 baseline", "better than the naive2 baseline",
                 find(hourly, "theta", "analytic").get("OWA")
-                        > find(hourly, "naive2", "analytic").get("OWA"));
-        claim("theta on Weekly", "worse still, at 1.288", 1.288,
+                        < find(hourly, "naive2", "analytic").get("OWA"));
+        holds("but behind the seasonal naive", "but well behind the seasonal naive",
+                find(hourly, "theta", "analytic").get("OWA")
+                        > find(hourly, "seasonal_naive", "analytic").get("OWA"));
+        claim("theta on Weekly", "worse than naive2, at 1.178", 1.178,
                 find(weekly, "theta", "analytic").get("OWA"), 3);
 
         int nominal = 0;

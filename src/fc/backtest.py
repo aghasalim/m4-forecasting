@@ -58,6 +58,8 @@ def run(freq: str, limit: int | None = None) -> pd.DataFrame:
                 "msis": M.msis(actual, f.lo, f.hi, y, m),
                 "interval": "analytic",
             }
+            # Per series ratio, kept as a diagnostic. The published OWA is M4's
+            # ratio of aggregates and is computed in summarise().
             rec["owa"] = M.owa(rec["smape"], rec["mase"], s_base, m_base)
             rows.append(rec)
 
@@ -82,10 +84,17 @@ def run(freq: str, limit: int | None = None) -> pd.DataFrame:
 
 def summarise(df: pd.DataFrame) -> pd.DataFrame:
     g = df.groupby(["method", "interval"]).agg(
-        sMAPE=("smape", "mean"), MASE=("mase", "mean"), OWA=("owa", "mean"),
+        sMAPE=("smape", "mean"), MASE=("mase", "mean"),
         coverage95=("cover95", "mean"), width=("width", "mean"), MSIS=("msis", "mean"),
         n=("series", "nunique"),
-    ).round(4).reset_index()
+    ).reset_index()
+    # M4 defines OWA on the aggregates: mean sMAPE over Naive2's mean sMAPE and
+    # mean MASE over Naive2's mean MASE. Averaging the per series ratios in the
+    # raw files instead is a different number, and it is not the one M4 reports.
+    base = g[g.method == "naive2"].set_index("interval")
+    g.insert(4, "OWA", [M.owa(r.sMAPE, r.MASE, base.sMAPE[r.interval], base.MASE[r.interval])
+                        for r in g.itertuples()])
+    g = g.round(4)
     return g.sort_values(["interval", "OWA"])
 
 
