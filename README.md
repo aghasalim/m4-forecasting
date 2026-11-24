@@ -1,5 +1,3 @@
-<p align="center"><img src="assets/banner.jpg" alt="Line drawing of many small time series with prediction bands and a few points outside the bands" width="100%"></p>
-
 # Forecasting, the interval is the forecast, and mine were wrong
 
 [![ci](https://github.com/aghasalim/m4-forecasting/actions/workflows/ci.yml/badge.svg)](https://github.com/aghasalim/m4-forecasting/actions/workflows/ci.yml)
