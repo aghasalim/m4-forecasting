@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/banner.jpg" alt="Line drawing of many small time series with prediction bands and a few points outside the bands" width="100%"></p>
+
 # Forecasting, the interval is the forecast, and mine were wrong
 
 [![ci](https://github.com/aghasalim/m4-forecasting/actions/workflows/ci.yml/badge.svg)](https://github.com/aghasalim/m4-forecasting/actions/workflows/ci.yml)
@@ -18,6 +20,19 @@ treated point accuracy as the easy part. If a nominal 95% interval only covers 8
 of the time, it's wrong, and sMAPE won't tell you.
 
 ---
+
+<details>
+<summary>Contents</summary>
+
+- [Abstract](#abstract)
+- [1. Three results](#1-three-results)
+- [2. The bug, which is the point of the tests](#2-the-bug-which-is-the-point-of-the-tests)
+- [3. Limitations](#3-limitations)
+- [4. Running it](#4-running-it)
+- [5. Licence](#5-licence)
+- [References](#references)
+
+</details>
 
 ## Abstract
 
